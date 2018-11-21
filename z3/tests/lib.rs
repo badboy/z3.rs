@@ -100,23 +100,3 @@ fn test_format() {
     let int = ctx.int_sort();
     assert_eq!("Int", format!("{}", int));
 }
-
-#[test]
-fn test_fresh_int_const() {
-    unsafe {
-        let logfile = std::ffi::CString::new("/tmp/z3.log").unwrap();
-        z3_sys::Z3_open_log(logfile.into_raw());
-    }
-    let _ = env_logger::try_init();
-    let cfg = Config::new();
-    let ctx = Context::new(&cfg);
-    let x = ctx.fresh_int_const("x");
-    let zero = ctx.from_i64(0);
-    let solver = Solver::new(&ctx);
-    solver.assert(&x.gt(&zero));
-    assert!(solver.check());
-
-    let model = solver.get_model();
-    let xv = model.eval(&x).unwrap().as_i64().unwrap();
-    assert_eq!(xv, 1);
-}
